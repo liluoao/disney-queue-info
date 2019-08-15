@@ -3,7 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
-    <title>迪斯尼指数</title>
+    <title>上海迪士尼排队情况</title>
     <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
     <script src="echarts.min.js"></script>
     <style>
@@ -32,7 +32,7 @@
 
     #year {
       margin-top: 40px;
-      height: 700px;
+      height: 900px;
     }
 
     #day {
@@ -42,12 +42,10 @@
     }
 
     #explain {
-      border-top: 1px solid #c1c1c1;
-      font-size: 16px;
+      font-size: 14px;
       color: #313131;
-      text-align: left;
-      margin-top: 25px;
-      padding-top: 20px;
+      text-align: center;
+      margin-top: 10px;
     }
 
     #footer {
@@ -66,26 +64,24 @@
 <body>
     <a href="https://github.com/gtt116/wait4disney"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
     <h1>上海迪士尼排队情况</h1>
+      <div id="explain">
+        <p>
+        数据来自迪斯尼官方接口，没有任何杜撰的成分。 每天自动更新，开始统计的时间为2016年9月7日，在此之前没有数据。
+        </p>
+        <p>
+          <b>平均等待时间:</b> 当日所有项目的平均等待时间
+        </p>
+        <p>
+          <b>使用技巧:</b> 点击下方“空闲”和“拥挤”看的更清楚哦
+        </p>
+      </div>
     <div class="container">
 	    <div id="year">...</div>
       <div id="day">...</div>
-      <div id="explain">
-        <h2>说明</h2>
-        <p>
-        数据来自迪斯尼官方接口，没有任何杜撰的成分。 开始统计的时间为2016年9月7日，在此之前没有数据，之后每天自动更新。
-        </p>
-        <p>
-        <b>使用技巧</b>：拖拉右下角范围选择工具，查看最拥挤或者最空闲的那几天。
-        </p>
-        <p>
-        <b>计算方法</b>：统计一天的排队时间，设定历史上最长等待时间那天的拥挤程度为1000分，
-        历史上最短等待时间那天拥挤程度为0分，其他按比例计算得分。
-        </p>
-      </div>
     </div>
     <div id="footer">
       <p>
-      &copy2017 <a href="https://gaott.info/">gtt116</a>
+      &copy2017-2019 <a href="https://gaott.info/">gtt116</a>
       </p>
     </div>
     <script type="text/javascript">
@@ -96,6 +92,10 @@
         console.debug("get date report: " + date)
 
         var dayChart = echarts.init(document.getElementById('day'));
+        option = {
+          title: {text: "获取" + date + "的数据中.."}
+        };
+        dayChart.setOption(option);
 
         $.getJSON(date + '.json').done(function (data) {
             option = {
@@ -173,7 +173,11 @@
         option = {
             title: {text: '年度热力图'},
             tooltip: {
-                position: 'top'
+                position: 'top',
+                formatter: function (p) {
+                  var format = echarts.format.formatTime('yyyy-MM-dd', p.data[0]);
+                  return format + '</br>平均等待' + p.data[1] + "分钟";
+                }
             },
             toolbox: {
                 feature: {
@@ -186,7 +190,7 @@
                 itemSymbol : 'triangle',
                 splitNumber: 6,
                 min: 0,
-                max: 1000,
+                max: 30,
                 calculable: true,
                 orient: 'horizontal',
                 left: 'center',
@@ -243,7 +247,24 @@
                 yearLabel: {
                   position: 'top'
                 }
-            }],
+            },
+            {
+                left: 40,
+                top: 740,
+                range: '2019',
+                cellSize: ['auto', 20],
+                dayLabel: {
+                  nameMap: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+                  firstDay: 1
+                },
+                monthLabel: {
+                  nameMap: 'cn'
+                },
+                yearLabel: {
+                  position: 'top'
+                }
+            }
+            ],
 
             series: [
               {
@@ -263,7 +284,14 @@
                 coordinateSystem: 'calendar',
                 calendarIndex: 2,
                 data: data
+              },
+              {
+                type: 'heatmap',
+                coordinateSystem: 'calendar',
+                calendarIndex: 3,
+                data: data
               }
+
             ]
           };	
 
